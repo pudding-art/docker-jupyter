@@ -1,0 +1,36 @@
+version: "3.9"
+services:
+  hub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        JUPYTERHUB_VERSION: latest
+    image: jupyterhub
+    container_name: jupyterhub
+    networks:
+      - jupyterhub-network
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./jupyterhub_config.py:/srv/jupyterhub/jupyterhub_config.py:ro
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - jupyterhub_data:/data
+    environment:
+      DOCKER_JUPYTER_IMAGE: quay.io/jupyter/base-notebook:latest
+      DOCKER_NETWORK_NAME: jupyterhub-network
+      DOCKER_NOTEBOOK_DIR: /home/jovyan/work
+
+
+    command: >
+      jupyterhub --config /srv/jupyterhub/jupyterhub_config.py
+
+networks:
+  jupyterhub-network:
+    name: jupyterhub-network
+    driver: bridge
+
+
+
+volumes:
+  jupyterhub_data:  
