@@ -1,0 +1,40 @@
+version: "3.9"
+services:
+  hub:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        JUPYTERHUB_VERSION: latest
+    image: jupyterhub
+    container_name: jupyterhub
+    networks:
+      - jupyterhub-network
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./jupyterhub_config.py:/srv/jupyterhub/jupyterhub_config.py:ro
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - jupyterhub_data:/data
+    env_file:
+      - ./oauth.env
+    secrets:
+      - oauth_client_id
+      - oauth_client_secret
+    command: >
+      jupyterhub --config /srv/jupyterhub/jupyterhub_config.py
+
+secrets:
+  oauth_client_id:
+    file: ./secrets/oauth_client_id.txt
+  oauth_client_secret:
+    file: ./secrets/oauth_client_secret.txt
+
+networks:
+  jupyterhub-network:
+    name: jupyterhub-network
+    driver: bridge
+
+
+volumes:
+  jupyterhub_data:  
