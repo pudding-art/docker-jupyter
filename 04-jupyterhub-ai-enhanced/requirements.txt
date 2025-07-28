@@ -1,0 +1,57 @@
+# --- Jupyter 核心组件 ---
+jupyterlab                    # JupyterLab 核心
+notebook                      # 笔记本核心
+ipywidgets                    # 交互式组件
+ipykernel                     # 内核管理
+jupyterlab-language-pack-zh-CN # 中文语言包
+
+# --- 基础科学计算栈 ---
+pandas                        # 数据处理
+numpy                         # 数值计算
+scipy                         # 科学计算
+matplotlib                    # 基础绘图
+seaborn                       # 统计绘图
+plotly                        # 交互式可视化
+scikit-learn                  # 机器学习工具
+polars                        # 快速数据处理
+duckdb                        # 嵌入式数据库
+
+# --- GPU / 深度学习 ---
+torch                         # PyTorch 核心
+torchvision                   # 计算机视觉扩展
+torchaudio                    # 音频处理扩展
+transformers                  # 预训练模型工具
+datasets                      # 数据集处理
+tokenizers                    # 分词器
+accelerate                    # 训练加速
+bitsandbytes                  # 量化工具（x86_64 平台）
+vllm                          # 高性能推理（x86_64 平台）
+
+# --- Jupyter-AI 及 LangChain 生态 ---
+jupyter-ai                    # Jupyter AI 核心
+jupyter-ai-magics             # AI 魔法命令
+langchain                     # LangChain 核心框架
+langchain-community           # LangChain 社区扩展
+langchain-openai              # OpenAI 集成
+langchain-anthropic           # Anthropic 集成
+anthropic                     # Anthropic 客户端
+langchain-ollama              # Ollama 集成
+alibabacloud_bailian20231229==2.1.0     # 阿里云百炼集成
+deepseek-py                   # DeepSeek 集成
+
+# --- AI 客户端 ---
+ollama                        # Ollama 客户端
+openai                        # OpenAI 客户端
+
+# --- 代码补全 / LSP ---
+jupyterlab-lsp                # 语言服务器协议集成
+python-lsp-server[all]        # Python 语言服务器
+jedi                          # 自动补全引擎
+# tabnine-jupyterlab            # Tabnine 代码补全
+
+# --- 其他实用工具 ---
+jupyterlab-git                # Git 集成
+nbstripout                    # 清理笔记本输出
+requests                      # HTTP 请求库
+httpx                         # 异步 HTTP 客户端
+faiss-cpu                     # 向量存储（可选）

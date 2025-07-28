@@ -1,0 +1,63 @@
+version: "3.9"
+services:
+  hub:
+    build:
+      context: .
+      dockerfile: Dockerfile.jupyterhub
+      args:
+        JUPYTERHUB_VERSION: latest
+    image: jupyterhub-ai
+    container_name: jupyterhub-ai
+    profiles:
+      - default
+    networks:
+      - jupyterhub-network
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./jupyterhub_config.py:/srv/jupyterhub/jupyterhub_config.py:ro
+      - /var/run/docker.sock:/var/run/docker.sock:rw
+      - jupyterhub_data:/data
+    resources:
+      limits:
+        cpus: '1.0'
+        memory: 2G
+      reservations:
+        cpus: '0.5'
+        memory: 1G
+    env_file:
+      - ./ai.env
+    secrets:
+      - oauth_client_id
+      - oauth_client_secret
+    command: >
+      jupyterhub --config /srv/jupyterhub/jupyterhub_config.py
+
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    profiles:
+      - ollama
+    networks:
+      - jupyterhub-network
+    ports:
+      - "11434:11434"  # Ollama 默认端口
+    volumes:
+      - ollama_data:/data
+    restart: unless-stopped
+
+secrets:
+  oauth_client_id:
+    file: ./secrets/oauth_client_id.txt
+  oauth_client_secret:
+    file: ./secrets/oauth_client_secret.txt
+
+networks:
+  jupyterhub-network:
+    name: jupyterhub-network
+    driver: bridge
+
+
+volumes:
+  jupyterhub_data:  

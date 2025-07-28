@@ -1,0 +1,72 @@
+FROM  quay.io/jupyter/base-notebook:python-3.11 AS base
+
+USER root
+
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    build-essential \
+    vim \
+    htop \
+    nodejs \
+    npm \
+    && apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+
+RUN mkdir -p /home/jovyan/work/examples && \
+    chown -R ${NB_UID}:${NB_GID} /home/jovyan/work
+
+USER ${NB_UID}
+
+
+# # frontend 
+# FROM node:20-alpine as js-builder
+# WORKDIR /src
+# COPY package.json .
+# RUN npm ci && npm run build
+
+
+
+# ai-tools
+FROM base AS ai-tools
+
+WORKDIR /home/jovyan/work
+
+
+# COPY --from=js-builder /src/dist /opt/frontend/dist
+COPY ./requirements.txt /tmp/requirements.txt
+
+RUN pip install --no-cache-dir --upgrade pip setuptools  && \
+    pip install --no-cache-dir -r /tmp/requirements.txt &&\
+    rm -rf ~/.cache/pip
+
+# copy custom ai providers
+# COPY ai_providers /opt/ai_providers
+# RUN pip install -e /opt/ai_providers
+
+# clean up
+USER root
+RUN rm -f /tmp/requirements.txt
+USER ${NB_UID}
+
+# enable Jupyter AI extension
+RUN jupyter server extension enable jupyter_ai && \
+    rm -rf ~/.cache ~/.npm
+
+
+FROM ai-tools AS final
+
+COPY --chown=${NB_UID}:${NB_GID} examples/ /home/jovyan/work/examples/
+
+
+RUN jupyter trust /home/jovyan/work/examples/*.ipynb || true
+
+
+ENV JUPYTER_ENABLE_LAB=yes 
+WORKDIR /home/jovyan/work
+
+
+USER ${NB_UID}
+    
