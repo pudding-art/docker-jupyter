@@ -162,4 +162,41 @@ print(response.json())
 
 ### postgresql
 
+在 JupyterHub 中使用 PostgreSQL 时，通常会将与用户和用户会话相关的一些数据存储到 PostgreSQL 数据库中。这些数据可能包括：用户信息,用户名,密码（通常以加密形式存储）,用户属性（如邮箱、昵称等）;用户会话信息：用户的登录记录,用户的会话状态（如会话开始时间、结束时间等）;服务器配置：JupyterHub 的配置参数,用户的个性化设置;其他自定义数据：其他自定义数据，例如课程信息、项目信息等。
 
+增加postgresql持久化功能，docker-compose.yml增加如下内容：
+
+```shell
+  postgres:
+    image: postgres:latest # 使用官方 postgres 镜像
+    container_name: postgresql
+    profiles:
+      - default
+    networks:
+      - jupyterhub-network
+    ports:
+      - "5432:5432"  # PostgreSQL 默认端口
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: jupyterhub_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # 数据持久化卷
+    restart: unless-stopped
+
+```
+
+设置了环境变量 POSTGRES_USER、POSTGRES_PASSWORD 和 POSTGRES_DB，分别用于定义默认用户、密码和数据库名称。数据持久化通过挂载 Docker 卷 postgres_data 到容器内的 /var/lib/postgresql/data 目录实现，确保即使容器被删除，数据也不会丢失。PostgreSQL 服务与 JupyterHub 和 Ollama 服务共享同一个网络 jupyterhub-network，确保它们可以相互通信。PostgreSQL 的默认端口 5432 被映射到宿主机的 5432 端口，便于从宿主机访问数据库。
+设置了 restart: unless-stopped，确保 PostgreSQL 服务在容器退出后自动重启。
+
+
+jupyterhub_config.py中需要配置配置 JupyterHub 使用 PostgreSQL 作为用户数据库。
+```python
+c.JupyterHub.db_url = 'postgresql://postgres:mysecretpassword@localhost:5432/jupyterhub_db'`
+```
+
+
+在 JupyterHub 中创建一个用户，然后使用以下 SQL 查询检查 PostgreSQL 数据库中的 users 表：
+```sql
+SELECT * FROM users;
+```
