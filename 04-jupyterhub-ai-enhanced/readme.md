@@ -140,7 +140,25 @@ API需要在docker.singleuser中pip install对应的包即可，然后docker-com
 
 ### ollama方法
 
+ 在 Notebook 容器中使用 Ollama 服务
+在 Notebook 容器中，你可以通过这些环境变量来访问 Ollama 服务。例如，你可以使用 requests 库来调用 Ollama API：
+```Python
+import os
+import requests
 
+# 获取环境变量
+ollama_api_base = os.environ.get("OLLAMA_API_BASE")
+ollama_api_key = os.environ.get("OLLAMA_API_KEY")
+ollama_url = os.environ.get("OLLAMA_URL")
+
+# 示例：调用 Ollama API 查询模型信息
+headers = {
+    "Authorization": f"Bearer {ollama_api_key}"
+}
+response = requests.get(f"{ollama_api_base}/api/models", headers=headers)
+
+print(response.json())
+```
 
 ### postgresql
 
